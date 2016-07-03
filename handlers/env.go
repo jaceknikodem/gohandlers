@@ -14,7 +14,7 @@ type EnvHandler struct {
 	Info EnvInfo
 }
 
-func (h EnvHandler) Expose() interface{} {
+func (h EnvHandler) Expose(r *http.Request) interface{} {
 	return h.Info
 }
 

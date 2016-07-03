@@ -12,7 +12,7 @@ type FlagInfo struct {
 type FlagHandler struct {
 }
 
-func (h FlagHandler) Expose() interface{} {
+func (h FlagHandler) Expose(r *http.Request) interface{} {
 	info := FlagInfo{
 		Flags: make(map[string]string),
 	}

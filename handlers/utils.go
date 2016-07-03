@@ -10,7 +10,7 @@ import (
 
 // Exposer exposes an object that is an external representation visible to all consumers.
 type Exposer interface {
-	Expose() interface{}
+	Expose(*http.Request) interface{}
 }
 
 func getValue(values *url.Values, key string) (string, bool) {
@@ -41,7 +41,7 @@ func renderTemplate(w http.ResponseWriter, name string, data interface{}) {
 }
 
 func serveHTTP(w http.ResponseWriter, r *http.Request, e Exposer, name string) {
-	ext := e.Expose()
+	ext := e.Expose(r)
 
 	q := r.URL.Query()
 	if jsonRequested(&q) {

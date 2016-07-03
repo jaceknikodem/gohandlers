@@ -27,7 +27,7 @@ type StatusHandler struct {
 }
 
 // Expose defines structure exposed to external consumers.
-func (h StatusHandler) Expose() interface{} {
+func (h StatusHandler) Expose(r *http.Request) interface{} {
 	info := StatusInfo{StartTime: h.Status.StartTime}
 	info.Uptime = time.Since(info.StartTime)
 	return info

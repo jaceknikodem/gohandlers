@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync/atomic"
 )
 
@@ -25,12 +27,12 @@ func (c *Counter) IncrementBy(n uint64) {
 	atomic.AddUint64(&(c.value), n)
 }
 
-func (c *Counter) Get() uint64 {
+func (c *Counter) Value() uint64 {
 	return atomic.LoadUint64(&c.value)
 }
 
 func (c Counter) String() string {
-	return fmt.Sprintf("%s = %d", c.name, c.Get())
+	return fmt.Sprintf("%s = %d", c.name, c.Value())
 }
 
 type CounterSet struct {
@@ -43,6 +45,14 @@ func NewCounterSet() *CounterSet {
 	}
 }
 
+func (cs CounterSet) String() string {
+	var buffer bytes.Buffer
+	for _, c := range cs.counters {
+		buffer.WriteString(fmt.Sprintf("%s\n", c))
+	}
+	return buffer.String()
+}
+
 func (cs *CounterSet) Get(name string) *Counter {
 	if c, ok := cs.counters[name]; ok {
 		return c
@@ -53,18 +63,32 @@ func (cs *CounterSet) Get(name string) *Counter {
 	return cs.counters[name]
 }
 
+func (cs CounterSet) WithPrefix(p string) *CounterSet {
+	ncs := NewCounterSet()
+	for n, c := range cs.counters {
+		if strings.HasPrefix(n, p) {
+			ncs.counters[n] = c
+		}
+	}
+	return ncs
+}
+
 type CountInfo struct {
 	Counters map[string]uint64
 }
 
 type CounterHandler struct{}
 
-func (h CounterHandler) Expose() interface{} {
+func (h CounterHandler) Expose(r *http.Request) interface{} {
 	info := CountInfo{
 		Counters: make(map[string]uint64),
 	}
+	q := r.URL.Query()
+	prefix, _ := getValue(&q, "prefix")
 	for name, c := range Counters.counters {
-		info.Counters[name] = c.Get()
+		if strings.HasPrefix(name, prefix) {
+			info.Counters[name] = c.Value()
+		}
 	}
 	return info
 }
