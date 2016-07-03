@@ -16,6 +16,12 @@ import (
 
 var port = flag.Int("port", 8080, "Port to run on.")
 
+type fakeHandler struct{}
+
+func (h fakeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "random content")
+}
+
 func main() {
 	p := fmt.Sprintf(":%d", *port)
 	fmt.Printf("Starting a server on %s\n", p)
@@ -24,6 +30,10 @@ func main() {
 	http.Handle("/env", *handlers.NewEnvHandler())
 	http.Handle("/counts", *handlers.NewCounterHandler())
 	http.Handle("/flags", *handlers.NewFlagHandler())
+
+	m := handlers.NewRequestMiddleware()
+	http.Handle("/", m.Wrap(fakeHandler{}))
+	http.Handle("/requests", *m)
 
 	handlers.Counters.Get("foo/bar").IncrementBy(5)
 

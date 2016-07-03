@@ -73,6 +73,16 @@ func (cs CounterSet) WithPrefix(p string) *CounterSet {
 	return ncs
 }
 
+func (cs CounterSet) CountInfo() CountInfo {
+	info := CountInfo{
+		Counters: make(map[string]uint64),
+	}
+	for name, c := range cs.counters {
+		info.Counters[name] = c.Value()
+	}
+	return info
+}
+
 type CountInfo struct {
 	Counters map[string]uint64
 }
@@ -80,17 +90,10 @@ type CountInfo struct {
 type CounterHandler struct{}
 
 func (h CounterHandler) Expose(r *http.Request) interface{} {
-	info := CountInfo{
-		Counters: make(map[string]uint64),
-	}
 	q := r.URL.Query()
-	prefix, _ := getValue(&q, "prefix")
-	for name, c := range Counters.counters {
-		if strings.HasPrefix(name, prefix) {
-			info.Counters[name] = c.Value()
-		}
-	}
-	return info
+	prefix, _ := GetValue(&q, "prefix")
+	cs := Counters.WithPrefix(prefix)
+	return cs.CountInfo()
 }
 
 func NewCounterHandler() *CounterHandler {

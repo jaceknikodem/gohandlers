@@ -49,6 +49,24 @@ func NewRequestMiddleware() *RequestMiddleware {
 	}
 }
 
+type RequestInfo struct {
+	Calls        CountInfo
+	RequestSize  CountInfo
+	ResponseSize CountInfo
+}
+
+func (m RequestMiddleware) Expose(r *http.Request) interface{} {
+	return RequestInfo{
+		Calls:        m.Calls.CountInfo(),
+		RequestSize:  m.RequestSize.CountInfo(),
+		ResponseSize: m.ResponseSize.CountInfo(),
+	}
+}
+
+func (h RequestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	serveHTTP(w, r, h, "requests.html")
+}
+
 func (m *RequestMiddleware) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		nw := newResponseWriter(w)

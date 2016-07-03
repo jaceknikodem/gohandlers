@@ -13,7 +13,7 @@ type Exposer interface {
 	Expose(*http.Request) interface{}
 }
 
-func getValue(values *url.Values, key string) (string, bool) {
+func GetValue(values *url.Values, key string) (string, bool) {
 	if value, ok := (*values)[key]; ok && len(value) > 0 {
 		return value[0], true
 	}
@@ -21,7 +21,7 @@ func getValue(values *url.Values, key string) (string, bool) {
 }
 
 func jsonRequested(values *url.Values) bool {
-	if format, ok := getValue(values, "format"); ok && format == "json" {
+	if format, ok := GetValue(values, "format"); ok && format == "json" {
 		return true
 	}
 	return false
