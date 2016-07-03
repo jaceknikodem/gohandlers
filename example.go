@@ -15,7 +15,12 @@ import (
 
 func main() {
 	fmt.Println("Starting a server")
+
 	http.Handle("/status", *handlers.NewStatusHandler())
 	http.Handle("/env", *handlers.NewEnvHandler())
+	http.Handle("/counts", *handlers.NewCounterHandler())
+
+	handlers.Counters.Get("foo/bar").IncrementBy(5)
+
 	http.ListenAndServe(":8080", nil)
 }
