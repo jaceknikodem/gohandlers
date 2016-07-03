@@ -84,7 +84,7 @@ func (cs CounterSet) CountInfo() CountInfo {
 }
 
 type CountInfo struct {
-	Counters map[string]uint64
+	Counters map[string]uint64 `json:"counters"`
 }
 
 type CounterHandler struct{}

@@ -50,9 +50,9 @@ func NewRequestMiddleware() *RequestMiddleware {
 }
 
 type RequestInfo struct {
-	Calls        CountInfo
-	RequestSize  CountInfo
-	ResponseSize CountInfo
+	Calls        CountInfo `json:"calls"`
+	RequestSize  CountInfo `json:"request_size"`
+	ResponseSize CountInfo `json:"response_size"`
 }
 
 func (m RequestMiddleware) Expose(r *http.Request) interface{} {

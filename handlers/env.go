@@ -7,7 +7,7 @@ import (
 )
 
 type EnvInfo struct {
-	Vars map[string]string
+	Vars map[string]string `json:"vars"`
 }
 
 type EnvHandler struct {

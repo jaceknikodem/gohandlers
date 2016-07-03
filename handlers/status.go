@@ -18,8 +18,8 @@ type statusInfo struct {
 
 // StatusInfo is an external structure exposed to consumers (template, JSON)
 type StatusInfo struct {
-	StartTime time.Time
-	Uptime    time.Duration
+	StartTime time.Time     `json:"start_time"`
+	Uptime    time.Duration `json:"uptime"`
 }
 
 type StatusHandler struct {

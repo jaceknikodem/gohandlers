@@ -6,7 +6,7 @@ import (
 )
 
 type FlagInfo struct {
-	Flags map[string]string
+	Flags map[string]string `json:"flags"`
 }
 
 type FlagHandler struct {
