@@ -1,0 +1,11 @@
+<html>
+  <head>
+    <title>Flags page</title>
+  </head>
+  <body>
+  <ul>
+  	{{ range $key, $value := .Flags }}
+  	<li>{{ $key }} : {{ $value }}</li>
+  	{{ end }}
+  </ul>
+  </body>

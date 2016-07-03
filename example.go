@@ -7,20 +7,25 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 
 	"github.com/jaceknikodem/gohandlers/handlers"
 )
 
+var port = flag.Int("port", 8080, "Port to run on.")
+
 func main() {
-	fmt.Println("Starting a server")
+	p := fmt.Sprintf(":%d", *port)
+	fmt.Printf("Starting a server on %s\n", p)
 
 	http.Handle("/status", *handlers.NewStatusHandler())
 	http.Handle("/env", *handlers.NewEnvHandler())
 	http.Handle("/counts", *handlers.NewCounterHandler())
+	http.Handle("/flags", *handlers.NewFlagHandler())
 
 	handlers.Counters.Get("foo/bar").IncrementBy(5)
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(p, nil)
 }
