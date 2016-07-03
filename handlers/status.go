@@ -7,7 +7,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -23,15 +22,15 @@ type StatusInfo struct {
 	Uptime    time.Duration
 }
 
-// Expose defines structure exposed to external consumers.
-func (i *statusInfo) Expose() StatusInfo {
-	info := StatusInfo{StartTime: i.StartTime}
-	info.Uptime = time.Since(info.StartTime)
-	return info
-}
-
 type StatusHandler struct {
 	Status statusInfo
+}
+
+// Expose defines structure exposed to external consumers.
+func (h StatusHandler) Expose() interface{} {
+	info := StatusInfo{StartTime: h.Status.StartTime}
+	info.Uptime = time.Since(info.StartTime)
+	return info
 }
 
 func NewStatusHandler() *StatusHandler {
@@ -43,12 +42,5 @@ func NewStatusHandler() *StatusHandler {
 }
 
 func (h StatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	i := h.Status.Expose()
-
-	query := r.URL.Query()
-	if jsonRequested(&query) {
-		json.NewEncoder(w).Encode(i)
-		return
-	}
-	renderTemplate(w, i)
+	serveHTTP(w, r, h, "status.html")
 }

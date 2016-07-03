@@ -16,5 +16,6 @@ import (
 func main() {
 	fmt.Println("Starting a server")
 	http.Handle("/status", *handlers.NewStatusHandler())
+	http.Handle("/env", *handlers.NewEnvHandler())
 	http.ListenAndServe(":8080", nil)
 }
