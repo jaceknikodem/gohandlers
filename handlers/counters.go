@@ -82,9 +82,9 @@ func (cs counterSet) WithPrefix(p string) *counterSet {
 	return ncs
 }
 
-// CountInfo returns counterSet represented as a countInfo,
-func (cs counterSet) CountInfo() countInfo {
-	info := countInfo{
+// CountInfo returns counterSet represented as a CountInfo,
+func (cs counterSet) CountInfo() CountInfo {
+	info := CountInfo{
 		Counters: make(map[string]uint64),
 	}
 	for name, c := range cs.counters {
@@ -93,7 +93,8 @@ func (cs counterSet) CountInfo() countInfo {
 	return info
 }
 
-type countInfo struct {
+// CountInfo is an external structure exposed to consumers (template, JSON).
+type CountInfo struct {
 	Counters map[string]uint64 `json:"counters"`
 }
 

@@ -1,4 +1,4 @@
-package handlers
+package handlers_test
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jaceknikodem/gohandlers/handlers"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +17,7 @@ func (h fakeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestRequestHandler(t *testing.T) {
-	m := NewRequestMiddleware()
+	m := handlers.NewRequestMiddleware()
 	h := m.Wrap(fakeHandler{})
 
 	req, err := http.NewRequest("GET", "/", nil)

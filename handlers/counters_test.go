@@ -1,22 +1,23 @@
-package handlers
+package handlers_test
 
 import (
 	"net/http"
 	"testing"
 
+	"github.com/jaceknikodem/gohandlers/handlers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCounterOps(t *testing.T) {
-	h := NewCounterHandler()
+	h := handlers.NewCounterHandler()
 
-	Counters.Get("foo/bar").Increment()
-	Counters.Get("foo/baz").IncrementBy(3)
-	Counters.Get("bar/baz").IncrementBy(5)
+	handlers.Counters.Get("foo/bar").Increment()
+	handlers.Counters.Get("foo/baz").IncrementBy(3)
+	handlers.Counters.Get("bar/baz").IncrementBy(5)
 
 	r, _ := http.NewRequest("GET", "/", nil)
 	d := h.Expose(r)
-	info := d.(countInfo)
+	info := d.(handlers.CountInfo)
 
 	assert.Contains(t, info.Counters, "foo/bar")
 	assert.Contains(t, info.Counters, "foo/baz")
@@ -28,7 +29,7 @@ func TestCounterOps(t *testing.T) {
 
 	r, _ = http.NewRequest("GET", "/?prefix=foo/", nil)
 	d = h.Expose(r)
-	info = d.(countInfo)
+	info = d.(handlers.CountInfo)
 
 	assert.Contains(t, info.Counters, "foo/bar")
 	assert.Contains(t, info.Counters, "foo/baz")

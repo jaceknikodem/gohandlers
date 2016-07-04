@@ -9,7 +9,8 @@ import (
 	"net/http"
 )
 
-type flagInfo struct {
+// FlagInfo is an external structure exposed to consumers (template, JSON).
+type FlagInfo struct {
 	Flags map[string]string `json:"flags"`
 }
 
@@ -18,7 +19,7 @@ type flagHandler struct {
 
 // Expose implements Exposer interface.
 func (h flagHandler) Expose(r *http.Request) interface{} {
-	info := flagInfo{
+	info := FlagInfo{
 		Flags: make(map[string]string),
 	}
 	flag.VisitAll(func(f *flag.Flag) {
