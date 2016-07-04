@@ -36,23 +36,23 @@ func (w responseWriter) Size() int {
 
 // RequestMiddleware counts request/response size and numbers off calls
 type RequestMiddleware struct {
-	Calls        *CounterSet
-	RequestSize  *CounterSet
-	ResponseSize *CounterSet
+	Calls        *counterSet
+	RequestSize  *counterSet
+	ResponseSize *counterSet
 }
 
 func NewRequestMiddleware() *RequestMiddleware {
 	return &RequestMiddleware{
-		Calls:        NewCounterSet(),
-		RequestSize:  NewCounterSet(),
-		ResponseSize: NewCounterSet(),
+		Calls:        newCounterSet(),
+		RequestSize:  newCounterSet(),
+		ResponseSize: newCounterSet(),
 	}
 }
 
 type RequestInfo struct {
-	Calls        CountInfo `json:"calls"`
-	RequestSize  CountInfo `json:"request_size"`
-	ResponseSize CountInfo `json:"response_size"`
+	Calls        countInfo `json:"calls"`
+	RequestSize  countInfo `json:"request_size"`
+	ResponseSize countInfo `json:"response_size"`
 }
 
 func (m RequestMiddleware) Expose(r *http.Request) interface{} {

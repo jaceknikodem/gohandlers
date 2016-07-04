@@ -1,3 +1,7 @@
+// Display all environment variables.
+//
+// Usage:
+//   http.Handle("/env", *handlers.NewEnvHandler())
 package handlers
 
 import (
@@ -6,31 +10,35 @@ import (
 	"strings"
 )
 
+// EnvInfo is a struct exposed externally.
 type EnvInfo struct {
 	Vars map[string]string `json:"vars"`
 }
 
-type EnvHandler struct {
+type envHandler struct {
 	Info EnvInfo
 }
 
-func (h EnvHandler) Expose(r *http.Request) interface{} {
+// Expose implements Exposer interface.
+func (h envHandler) Expose(r *http.Request) interface{} {
 	return h.Info
 }
 
-func NewEnvHandler() *EnvHandler {
+// NewEnvHandler creates a new envHandler.
+func NewEnvHandler() *envHandler {
 	vars := make(map[string]string)
 	for _, e := range os.Environ() {
 		p := strings.SplitN(e, "=", 2)
 		vars[p[0]] = p[1]
 	}
-	return &EnvHandler{
+	return &envHandler{
 		Info: EnvInfo{
 			Vars: vars,
 		},
 	}
 }
 
-func (h EnvHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP implements http.Handler interface.
+func (h envHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	serveHTTP(w, r, h, "env.html")
 }

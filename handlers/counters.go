@@ -1,3 +1,5 @@
+// Usage:
+//   http.Handle("/counts", *handlers.NewCounterHandler())
 package handlers
 
 import (
@@ -8,44 +10,49 @@ import (
 	"sync/atomic"
 )
 
-var Counters CounterSet
+var Counters counterSet
 
 func init() {
-	Counters = *NewCounterSet()
+	Counters = *newCounterSet()
 }
 
-type Counter struct {
+type counter struct {
 	name  string
 	value uint64
 }
 
-func (c *Counter) Increment() {
+// Increment increments a counter by 1 atomically.
+func (c *counter) Increment() {
 	atomic.AddUint64(&(c.value), 1)
 }
 
-func (c *Counter) IncrementBy(n uint64) {
+// IncrementBy increments a counter by a given number atomically.
+func (c *counter) IncrementBy(n uint64) {
 	atomic.AddUint64(&(c.value), n)
 }
 
-func (c *Counter) Value() uint64 {
+// Value gets counter's value.
+func (c *counter) Value() uint64 {
 	return atomic.LoadUint64(&c.value)
 }
 
-func (c Counter) String() string {
+// String implements fmt.Stringer interface.
+func (c counter) String() string {
 	return fmt.Sprintf("%s = %d", c.name, c.Value())
 }
 
-type CounterSet struct {
-	counters map[string]*Counter
+type counterSet struct {
+	counters map[string]*counter
 }
 
-func NewCounterSet() *CounterSet {
-	return &CounterSet{
-		counters: make(map[string]*Counter),
+func newCounterSet() *counterSet {
+	return &counterSet{
+		counters: make(map[string]*counter),
 	}
 }
 
-func (cs CounterSet) String() string {
+// String implements fmt.Stringer interface.
+func (cs counterSet) String() string {
 	var buffer bytes.Buffer
 	for _, c := range cs.counters {
 		buffer.WriteString(fmt.Sprintf("%s\n", c))
@@ -53,18 +60,20 @@ func (cs CounterSet) String() string {
 	return buffer.String()
 }
 
-func (cs *CounterSet) Get(name string) *Counter {
+// Get looks up or creates a new counter.
+func (cs *counterSet) Get(name string) *counter {
 	if c, ok := cs.counters[name]; ok {
 		return c
 	}
-	c := new(Counter)
+	c := new(counter)
 	c.name = name
 	cs.counters[name] = c
 	return cs.counters[name]
 }
 
-func (cs CounterSet) WithPrefix(p string) *CounterSet {
-	ncs := NewCounterSet()
+// WithPrefix returns a counterSet with counters starting with a given string.
+func (cs counterSet) WithPrefix(p string) *counterSet {
+	ncs := newCounterSet()
 	for n, c := range cs.counters {
 		if strings.HasPrefix(n, p) {
 			ncs.counters[n] = c
@@ -73,8 +82,9 @@ func (cs CounterSet) WithPrefix(p string) *CounterSet {
 	return ncs
 }
 
-func (cs CounterSet) CountInfo() CountInfo {
-	info := CountInfo{
+// CountInfo returns counterSet represented as a countInfo,
+func (cs counterSet) CountInfo() countInfo {
+	info := countInfo{
 		Counters: make(map[string]uint64),
 	}
 	for name, c := range cs.counters {
@@ -83,23 +93,26 @@ func (cs CounterSet) CountInfo() CountInfo {
 	return info
 }
 
-type CountInfo struct {
+type countInfo struct {
 	Counters map[string]uint64 `json:"counters"`
 }
 
-type CounterHandler struct{}
+type counterHandler struct{}
 
-func (h CounterHandler) Expose(r *http.Request) interface{} {
+// Expose implements Exposer interface.
+func (h counterHandler) Expose(r *http.Request) interface{} {
 	q := r.URL.Query()
 	prefix, _ := GetValue(&q, "prefix")
 	cs := Counters.WithPrefix(prefix)
 	return cs.CountInfo()
 }
 
-func NewCounterHandler() *CounterHandler {
-	return &CounterHandler{}
+// NewCounterHandler creates a new counterHandler.
+func NewCounterHandler() *counterHandler {
+	return &counterHandler{}
 }
 
-func (h CounterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP implements http.Handler interface.
+func (h counterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	serveHTTP(w, r, h, "counters.html")
 }

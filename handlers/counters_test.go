@@ -16,7 +16,7 @@ func TestCounterOps(t *testing.T) {
 
 	r, _ := http.NewRequest("GET", "/", nil)
 	d := h.Expose(r)
-	info := d.(CountInfo)
+	info := d.(countInfo)
 
 	assert.Contains(t, info.Counters, "foo/bar")
 	assert.Contains(t, info.Counters, "foo/baz")
@@ -28,7 +28,7 @@ func TestCounterOps(t *testing.T) {
 
 	r, _ = http.NewRequest("GET", "/?prefix=foo/", nil)
 	d = h.Expose(r)
-	info = d.(CountInfo)
+	info = d.(countInfo)
 
 	assert.Contains(t, info.Counters, "foo/bar")
 	assert.Contains(t, info.Counters, "foo/baz")

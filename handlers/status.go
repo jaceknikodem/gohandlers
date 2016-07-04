@@ -22,25 +22,27 @@ type StatusInfo struct {
 	Uptime    time.Duration `json:"uptime"`
 }
 
-type StatusHandler struct {
+type statusHandler struct {
 	Status statusInfo
 }
 
 // Expose defines structure exposed to external consumers.
-func (h StatusHandler) Expose(r *http.Request) interface{} {
+func (h statusHandler) Expose(r *http.Request) interface{} {
 	info := StatusInfo{StartTime: h.Status.StartTime}
 	info.Uptime = time.Since(info.StartTime)
 	return info
 }
 
-func NewStatusHandler() *StatusHandler {
-	return &StatusHandler{
+// NewStatusHandler creates a new statusHandler.
+func NewStatusHandler() *statusHandler {
+	return &statusHandler{
 		Status: statusInfo{
 			StartTime: time.Now(),
 		},
 	}
 }
 
-func (h StatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP implements http.Handler interface.
+func (h statusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	serveHTTP(w, r, h, "status.html")
 }

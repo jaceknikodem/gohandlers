@@ -1,3 +1,7 @@
+// Displays all flags within the binary.
+//
+// Usage:
+//   http.Handle("/flags", *handlers.NewFlagHandler())
 package handlers
 
 import (
@@ -5,15 +9,16 @@ import (
 	"net/http"
 )
 
-type FlagInfo struct {
+type flagInfo struct {
 	Flags map[string]string `json:"flags"`
 }
 
-type FlagHandler struct {
+type flagHandler struct {
 }
 
-func (h FlagHandler) Expose(r *http.Request) interface{} {
-	info := FlagInfo{
+// Expose implements Exposer interface.
+func (h flagHandler) Expose(r *http.Request) interface{} {
+	info := flagInfo{
 		Flags: make(map[string]string),
 	}
 	flag.VisitAll(func(f *flag.Flag) {
@@ -22,10 +27,11 @@ func (h FlagHandler) Expose(r *http.Request) interface{} {
 	return info
 }
 
-func NewFlagHandler() *FlagHandler {
-	return &FlagHandler{}
+func NewFlagHandler() *flagHandler {
+	return &flagHandler{}
 }
 
-func (h FlagHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP implements http.Handler interface.
+func (h flagHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	serveHTTP(w, r, h, "flags.html")
 }

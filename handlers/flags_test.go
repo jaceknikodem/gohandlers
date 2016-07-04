@@ -15,7 +15,7 @@ func TestFlag(t *testing.T) {
 
 	r, _ := http.NewRequest("GET", "/", nil)
 	data := h.Expose(r)
-	info := data.(FlagInfo)
+	info := data.(flagInfo)
 
 	assert.Contains(t, info.Flags, "fake")
 	assert.Equal(t, info.Flags["fake"], "123")
