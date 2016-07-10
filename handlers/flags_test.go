@@ -56,4 +56,10 @@ func TestUpdateFlagFailBadType(t *testing.T) {
 
 	_, err := h.Expose(r)
 	assert.Error(t, err)
+
+	r, _ = http.NewRequest("GET", "/", nil)
+	data, err := h.Expose(r)
+	assert.NoError(t, err)
+	info := data.(handlers.FlagInfo)
+	assertFlagEqual(t, info, "baz", "123")
 }

@@ -5,10 +5,14 @@
 package handlers
 
 import (
+	"errors"
 	"flag"
+	"fmt"
 	"net/http"
 	"net/url"
 )
+
+var ErrNonExistingFlag = errors.New("Specified flag doesn't exist")
 
 // FlagInfo is an external structure exposed to consumers (template, JSON).
 type FlagInfo struct {
@@ -24,8 +28,15 @@ func updateFlag(vs url.Values) error {
 		// Updating is optional, so no error here.
 		return nil
 	}
-	name, value := values[0], values[1]
-	if err := flag.CommandLine.Set(name, value); err != nil {
+	name, val := values[0], values[1]
+	fs := flag.CommandLine
+	curr := fs.Lookup(name)
+	if curr == nil {
+		return ErrNonExistingFlag
+	}
+	prev := fmt.Sprintf("%v", curr.Value)
+	if err := fs.Set(name, val); err != nil {
+		fs.Set(name, fmt.Sprintf("%v", prev))
 		return err
 	}
 	return nil

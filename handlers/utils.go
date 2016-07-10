@@ -9,7 +9,7 @@ import (
 	"net/url"
 )
 
-var ErrMissingFlag = errors.New("Flag is missing")
+var ErrMissingAttribute = errors.New("Attribute is missing")
 
 // Exposer exposes an object that is an external representation visible to all consumers.
 type Exposer interface {
@@ -29,7 +29,7 @@ func GetValues(vs url.Values, names ...string) ([]string, error) {
 		if v, ok := GetValue(vs, name); ok {
 			flags = append(flags, v)
 		} else {
-			return flags, ErrMissingFlag
+			return flags, ErrMissingAttribute
 		}
 	}
 	return flags, nil
