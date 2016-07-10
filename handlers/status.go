@@ -9,6 +9,7 @@ package handlers
 import (
 	"net"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -34,6 +35,17 @@ func addresses() []string {
 // statusInfo is an internal structure used to gather all information
 type statusInfo struct {
 	StartTime time.Time
+	Hostname  string
+	Pid       int
+}
+
+// StatusInfo converts statusInfo (the internal struct) to StatusInfo (the public struct).
+func (s statusInfo) StatusInfo() StatusInfo {
+	return StatusInfo{
+		StartTime: s.StartTime,
+		Hostname:  s.Hostname,
+		Pid:       s.Pid,
+	}
 }
 
 // StatusInfo is an external structure exposed to consumers (template, JSON)
@@ -41,6 +53,9 @@ type StatusInfo struct {
 	StartTime time.Time     `json:"start_time"`
 	Uptime    time.Duration `json:"uptime"`
 	Addresses []string      `json:"addresses"`
+	Cwd       string        `json:"cwd"`
+	Hostname  string        `json:"hostname"`
+	Pid       int           `json:"pid"`
 }
 
 type statusHandler struct {
@@ -49,20 +64,26 @@ type statusHandler struct {
 
 // Expose defines structure exposed to external consumers.
 func (h statusHandler) Expose(r *http.Request) (interface{}, error) {
-	info := StatusInfo{
-		StartTime: h.Status.StartTime,
-		Uptime:    time.Since(h.Status.StartTime),
-		Addresses: addresses(),
+	info := h.Status.StatusInfo()
+	info.Uptime = time.Since(info.StartTime)
+	info.Addresses = addresses()
+	if d, e := os.Getwd(); e == nil {
+		info.Cwd = d
 	}
 	return info, nil
 }
 
 // NewStatusHandler creates a new statusHandler.
 func NewStatusHandler() *statusHandler {
+	s := statusInfo{
+		StartTime: time.Now(),
+		Pid:       os.Getegid(),
+	}
+	if n, e := os.Hostname(); e == nil {
+		s.Hostname = n
+	}
 	return &statusHandler{
-		Status: statusInfo{
-			StartTime: time.Now(),
-		},
+		Status: s,
 	}
 }
 
