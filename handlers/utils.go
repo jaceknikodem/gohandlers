@@ -2,25 +2,40 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"html/template"
 	"log"
 	"net/http"
 	"net/url"
 )
 
+var ErrMissingFlag = errors.New("Flag is missing")
+
 // Exposer exposes an object that is an external representation visible to all consumers.
 type Exposer interface {
 	Expose(*http.Request) (interface{}, error)
 }
 
-func GetValue(values *url.Values, key string) (string, bool) {
-	if value, ok := (*values)[key]; ok && len(value) > 0 {
+func GetValue(values url.Values, key string) (string, bool) {
+	if value, ok := values[key]; ok && len(value) > 0 {
 		return value[0], true
 	}
 	return "", false
 }
 
-func jsonRequested(values *url.Values) bool {
+func GetValues(vs url.Values, names ...string) ([]string, error) {
+	flags := make([]string, 0, len(names))
+	for _, name := range names {
+		if v, ok := GetValue(vs, name); ok {
+			flags = append(flags, v)
+		} else {
+			return flags, ErrMissingFlag
+		}
+	}
+	return flags, nil
+}
+
+func jsonRequested(values url.Values) bool {
 	if format, ok := GetValue(values, "format"); ok && format == "json" {
 		return true
 	}
@@ -57,8 +72,7 @@ func serveHTTP(w http.ResponseWriter, r *http.Request, e Exposer, name string) {
 		return
 	}
 
-	q := r.URL.Query()
-	if jsonRequested(&q) {
+	if jsonRequested(r.URL.Query()) {
 		json.NewEncoder(w).Encode(data)
 		return
 	}

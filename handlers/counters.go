@@ -102,8 +102,7 @@ type counterHandler struct{}
 
 // Expose implements Exposer interface.
 func (h counterHandler) Expose(r *http.Request) (interface{}, error) {
-	q := r.URL.Query()
-	prefix, _ := GetValue(&q, "prefix")
+	prefix, _ := GetValue(r.URL.Query(), "prefix")
 	cs := Counters.WithPrefix(prefix)
 	return cs.CountInfo(), nil
 }
