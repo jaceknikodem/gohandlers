@@ -17,7 +17,8 @@ func TestHandler(t *testing.T) {
 	h := NewEnvHandler()
 
 	r, _ := http.NewRequest("GET", "/", nil)
-	d := h.Expose(r)
+	d, err := h.Expose(r)
+	assert.Nil(t, err)
 	info := d.(EnvInfo)
 
 	assert.Contains(t, info.Vars, k)

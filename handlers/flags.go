@@ -18,14 +18,14 @@ type flagHandler struct {
 }
 
 // Expose implements Exposer interface.
-func (h flagHandler) Expose(r *http.Request) interface{} {
+func (h flagHandler) Expose(r *http.Request) (interface{}, error) {
 	info := FlagInfo{
 		Flags: make(map[string]string),
 	}
 	flag.VisitAll(func(f *flag.Flag) {
 		info.Flags[f.Name] = f.Value.String()
 	})
-	return info
+	return info, nil
 }
 
 func NewFlagHandler() *flagHandler {

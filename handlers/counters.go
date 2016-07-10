@@ -101,11 +101,11 @@ type CountInfo struct {
 type counterHandler struct{}
 
 // Expose implements Exposer interface.
-func (h counterHandler) Expose(r *http.Request) interface{} {
+func (h counterHandler) Expose(r *http.Request) (interface{}, error) {
 	q := r.URL.Query()
 	prefix, _ := GetValue(&q, "prefix")
 	cs := Counters.WithPrefix(prefix)
-	return cs.CountInfo()
+	return cs.CountInfo(), nil
 }
 
 // NewCounterHandler creates a new counterHandler.

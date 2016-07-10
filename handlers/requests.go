@@ -55,12 +55,12 @@ type RequestInfo struct {
 	ResponseSize CountInfo `json:"response_size"`
 }
 
-func (m RequestMiddleware) Expose(r *http.Request) interface{} {
+func (m RequestMiddleware) Expose(r *http.Request) (interface{}, error) {
 	return RequestInfo{
 		Calls:        m.Calls.CountInfo(),
 		RequestSize:  m.RequestSize.CountInfo(),
 		ResponseSize: m.ResponseSize.CountInfo(),
-	}
+	}, nil
 }
 
 func (h RequestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -20,8 +20,8 @@ type envHandler struct {
 }
 
 // Expose implements Exposer interface.
-func (h envHandler) Expose(r *http.Request) interface{} {
-	return h.Info
+func (h envHandler) Expose(r *http.Request) (interface{}, error) {
+	return h.Info, nil
 }
 
 // NewEnvHandler creates a new envHandler.

@@ -16,7 +16,8 @@ func TestCounterOps(t *testing.T) {
 	handlers.Counters.Get("bar/baz").IncrementBy(5)
 
 	r, _ := http.NewRequest("GET", "/", nil)
-	d := h.Expose(r)
+	d, err := h.Expose(r)
+	assert.Nil(t, err)
 	info := d.(handlers.CountInfo)
 
 	assert.Contains(t, info.Counters, "foo/bar")
@@ -28,7 +29,8 @@ func TestCounterOps(t *testing.T) {
 	assert.Equal(t, info.Counters["bar/baz"], uint64(5))
 
 	r, _ = http.NewRequest("GET", "/?prefix=foo/", nil)
-	d = h.Expose(r)
+	d, err = h.Expose(r)
+	assert.Nil(t, err)
 	info = d.(handlers.CountInfo)
 
 	assert.Contains(t, info.Counters, "foo/bar")

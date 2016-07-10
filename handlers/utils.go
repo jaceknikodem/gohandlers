@@ -10,7 +10,7 @@ import (
 
 // Exposer exposes an object that is an external representation visible to all consumers.
 type Exposer interface {
-	Expose(*http.Request) interface{}
+	Expose(*http.Request) (interface{}, error)
 }
 
 func GetValue(values *url.Values, key string) (string, bool) {
@@ -34,20 +34,34 @@ func renderTemplate(w http.ResponseWriter, name string, data interface{}) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	w.WriteHeader(http.StatusOK)
 	err = t.Execute(w, data)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 }
 
-func serveHTTP(w http.ResponseWriter, r *http.Request, e Exposer, name string) {
-	ext := e.Expose(r)
+func renderError(w http.ResponseWriter, e error) {
+	w.WriteHeader(http.StatusBadRequest)
+	json.NewEncoder(w).Encode(struct {
+		Error string
+	}{
+		e.Error(),
+	})
+}
 
-	q := r.URL.Query()
-	if jsonRequested(&q) {
-		json.NewEncoder(w).Encode(ext)
+func serveHTTP(w http.ResponseWriter, r *http.Request, e Exposer, name string) {
+	data, err := e.Expose(r)
+	if err != nil {
+		renderError(w, err)
 		return
 	}
 
-	renderTemplate(w, name, ext)
+	q := r.URL.Query()
+	if jsonRequested(&q) {
+		json.NewEncoder(w).Encode(data)
+		return
+	}
+
+	renderTemplate(w, name, data)
 }
