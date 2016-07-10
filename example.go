@@ -26,14 +26,8 @@ func main() {
 	p := fmt.Sprintf(":%d", *port)
 	fmt.Printf("Starting a server on %s\n", p)
 
-	http.Handle("/status", *handlers.NewStatusHandler())
-	http.Handle("/env", *handlers.NewEnvHandler())
-	http.Handle("/counts", *handlers.NewCounterHandler())
-	http.Handle("/flags", *handlers.NewFlagHandler())
-
-	m := handlers.NewRequestMiddleware()
-	http.Handle("/", m.Wrap(fakeHandler{}))
-	http.Handle("/requests", *m)
+	handlers.Handle("/", fakeHandler{})
+	handlers.RegisterAll()
 
 	handlers.Counters.Get("foo/bar").IncrementBy(5)
 
