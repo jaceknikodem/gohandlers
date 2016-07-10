@@ -5,6 +5,7 @@ import "net/http"
 var reqMid = NewRequestMiddleware()
 
 func RegisterAll() {
+	http.Handle("/kill", *NewKillHandler())
 	http.Handle("/status", *NewStatusHandler())
 	http.Handle("/env", *NewEnvHandler())
 	http.Handle("/counts", *NewCounterHandler())
